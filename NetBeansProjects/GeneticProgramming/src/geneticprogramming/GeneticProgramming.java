@@ -64,17 +64,14 @@ public class GeneticProgramming {
             Tree newTree = new Tree(3,0.0);
             myRoot = newTree.buildTree(nodeArray,1, totalNodes-1);
             arrayOfTrees.add(newTree);
-            //Collections.sort(arrayOfTrees);
             newTree.traverseTree(myRoot);
             System.out.println();
             System.out.println(newTree.evaluate(myRoot,1));  
         
-            
             for(int k=0;k<7;k++){
                 fitnessScore = fitnessScore + Math.abs(td.read(k) - arrayOfTrees.get(j).evaluate(myRoot, k));    
             }
-            
-   
+              
             arrayOfTrees.get(j).fitnessValue = fitnessScore;
             
             for(int k= 0; k< arrayOfTrees.size();k++){

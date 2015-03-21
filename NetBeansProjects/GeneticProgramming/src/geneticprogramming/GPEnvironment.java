@@ -53,11 +53,17 @@ public class GPEnvironment {
             highestValue = 0;
         }
     }
-    public void crossover(){}
-    public void mutate(){}
+    public void crossover(Tree t1, Tree t2){
+        
+        //select random node for 
+        //t1.selectSubtree = temp.subTree
+        //t2.selectSubtree = t1.selectSubtree
+        //t1.selectSubtree = t2.selectSubtree
+    }
+    public void mutate(Tree t1){
     
-    
-    
+    }
+   
     public char generateRandomValueNode(){
         char value;
         Random rNumber = new Random();
