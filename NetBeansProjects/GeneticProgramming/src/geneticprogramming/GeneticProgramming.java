@@ -6,7 +6,15 @@
 
 package geneticprogramming;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 /**
  *
@@ -17,56 +25,100 @@ public class GeneticProgramming {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException, IOException {
         // TODO code application logic here
-        System.out.println("Creating GP Environment...");
         GPEnvironment myEnvironment = new GPEnvironment();
         
-        //create root node
-        System.out.println("Creating Root Node...");
+        Properties prop = new Properties();
+        String fileName = "src/geneticprogramming/settings.config";
         
-        //Node left = new Node ('x', null, null);
-        //Node right = new Node ('2', null, null);        
-        //Node root = new Node ('*', left, right);
+        InputStream is = new FileInputStream(fileName);
+        prop.load(is);
         
-        ArrayList<Node> list = new ArrayList<Node>(10);
+        int populationSize, maxTreeHeight = 0;
+        double percentRegeneration = 0;
+        populationSize = Integer.parseInt(prop.getProperty("populationSize"));
+        maxTreeHeight = Integer.parseInt(prop.getProperty("maxTreeHeight"));
+        percentRegeneration = Integer.parseInt(prop.getProperty("percentRegeneration"));
+        TreeNode root;
+        
+        
+        ArrayList<TreeNode> list = new ArrayList<TreeNode>(populationSize);
+        List<Tree> nextGeneration = new ArrayList<Tree>();   
         TrainingData td = new TrainingData();
-        System.out.println("Creating expression trees array...");
-        for(int i = 0;i<=10;i++){
-            
-            Node left = new Node ('x', null, null);
-            Node right = new Node ('2', null, null);        
-            Node root = new Node ('*', left, right);
-            
-            Random myNumber;
-            myNumber = new Random();
-            
-            int myRootAnswer = myNumber.nextInt(4) + 1;
-                    
-            char randomLeft = myEnvironment.generateRandomValueNode();
-            char randomRight = myEnvironment.generateRandomValueNode();
-            char randomRoot = myEnvironment.generateRandomRootNode(myRootAnswer);
-                       
-            //create Array list of nodes
-            
-            list.add(i,root);
-            list.get(i).left.setNodeValue(randomLeft);
-            list.get(i).right.setNodeValue(randomRight);
-            list.get(i).setNodeValue(randomRoot);
-                        
-        }
-        
-        //for (int i = 0; i < list.size(); i++) {
-        //    double tdValue = td.getTrainingData();
-        //    System.out.println("The " + i + " expression is: " + list.get(i).left.getNodeValue() + " " + list.get(i).getNodeValue() + " " + list.get(i).right.getNodeValue());
-        //    double myValue = myEnvironment.evaluate(list.get(i), tdValue);
-        //    System.out.println("The " + i + " value is: " + myValue);
-        //    System.out.println("The " + i + " fitness value is: " + myValue);                      
-        //}
-        System.out.println("Selecting Trees for Next Generation...");         
+              
         myEnvironment.selection(list);
        
+        int totalNodes = (int) Math.pow(2,maxTreeHeight);
+        int nodeArray[] = new int[(int)Math.pow(2,maxTreeHeight)];
+        
+        for(int i=0;i<totalNodes;i++){
+            nodeArray[i] = i;
+        }
+             
+        TreeNode myRoot = null;
+        ArrayList<Tree> arrayOfTrees = new ArrayList<Tree>(populationSize);
+        double fitnessScore = 0.0;
+        double highestValue=0.0;
+        for(int j=0;j<populationSize;j++){
+            Tree newTree = new Tree(3,0.0);
+            myRoot = newTree.buildTree(nodeArray,1, totalNodes-1);
+            arrayOfTrees.add(newTree);
+            //Collections.sort(arrayOfTrees);
+            newTree.traverseTree(myRoot);
+            System.out.println();
+            System.out.println(newTree.evaluate(myRoot,1));  
+        
+            
+            for(int k=0;k<7;k++){
+                fitnessScore = fitnessScore + Math.abs(td.read(k) - arrayOfTrees.get(j).evaluate(myRoot, k));    
+            }
+            
+   
+            arrayOfTrees.get(j).fitnessValue = fitnessScore;
+            
+            for(int k= 0; k< arrayOfTrees.size();k++){
+                System.out.println("The fitness score for " + k + " is: " + arrayOfTrees.get(k).fitnessValue);
+            }
+            
+            double percentage = (double) percentRegeneration;
+            int nextGenerationSize = (int) Math.round(populationSize * percentage/100);
+            System.out.println("The next generation size is: " + nextGenerationSize);
+            if((fitnessScore<highestValue) || (nextGeneration.size() < nextGenerationSize)){
+                nextGeneration.add(arrayOfTrees.get(j));
+                nextGeneration.get(nextGeneration.size()-1).fitnessValue = fitnessScore;
+                Collections.sort(nextGeneration);
+                System.out.println("The highest value is now: " + highestValue);    
+                    
+                if(fitnessScore > highestValue){
+                    highestValue = fitnessScore;
+                    System.out.println("The highest score is now: " + nextGeneration.get(nextGeneration.size()-1).fitnessValue);            
+                }    
+                if(nextGeneration.size()>nextGenerationSize){
+                         System.out.println("The fitness score is: " + nextGeneration.get(nextGeneration.size()-1).fitnessValue + " removing...");              
+                         nextGeneration.remove(nextGeneration.size()-1);
+                         fitnessScore = 0.0;                    
+                 }
+                 else{
+                    fitnessScore = 0.0;
+                 }
+                  fitnessScore = 0.0; 
+            }
+            else{
+                Collections.sort(nextGeneration);
+                System.out.println("The fitness score is: " + nextGeneration.get(nextGeneration.size()-1).fitnessValue + " removing...");              
+                nextGeneration.remove(nextGeneration.size()-1);
+                fitnessScore = 0.0;
+                System.out.println("The new highest score is " + nextGeneration.get(nextGeneration.size()-1).fitnessValue);
+            }
+                    
+            Collections.sort(nextGeneration); 
+            for (int q = 0; q < nextGeneration.size();q++){
+                System.out.println("Next generation location: " + q + " has value: "  + nextGeneration.get(q).fitnessValue );
+            }
+            }
+        //perform selection
+     
     }
-  
     
 }

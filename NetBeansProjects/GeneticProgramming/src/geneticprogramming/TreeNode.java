@@ -10,20 +10,22 @@ package geneticprogramming;
  *
  * @author mark2681
  */
-public class Node{
+public class TreeNode{
     
     private char data;   
-    Node left;
-    Node right;
+    TreeNode left;
+    TreeNode right;
+    int key;
     
     //constructor
     //add height/fitness values
-    public Node(char data, Node left, Node right){
+    public TreeNode(int key,char data){
+        this.key = key;
         this.data = data;
         this.left = left;
         this.right = right;
-    }    
-   
+    }   
+    
     //set node value
     public void setNodeValue(char value){
         data = value;
@@ -33,4 +35,18 @@ public class Node{
     public char getNodeValue(){
         return data;
     }    
+    public void setKeyValue(int keyValue){
+        key = keyValue;
+    }
+        //get node value
+    public int getKeyValue(){
+        return key;
+    }    
+    public void mutate(){
+        
+    }
+    public String toString(){
+        return "key " + key + " has data value of: " + data;
+    }
+    
 }

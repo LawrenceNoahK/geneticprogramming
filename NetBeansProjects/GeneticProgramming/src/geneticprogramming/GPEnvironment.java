@@ -16,9 +16,6 @@ import java.util.Random;
  */
 public class GPEnvironment {
    
-    private int treeHeight = 5;
-    Node selectedNode;
-    Node newLeftNode;
     //GPEnvironment myEnvironment;
     TrainingData td = new TrainingData();
     
@@ -26,23 +23,20 @@ public class GPEnvironment {
         
     }
     public void compare(){}
-    public void assignScore(){}
-    public void selection(ArrayList<Node> previousGeneration){
+    public void assignScore(TrainingData td){
+        double score = 0.0;
+        
+    }
+    public void selection(ArrayList<TreeNode> previousGeneration){
         double fitnessValue = 0;
         double highestValue = 0;
-        int positionOfHighestValue = 0;
         
-        ArrayList<Node> nextGeneration = new ArrayList<>(10);   
+        ArrayList<TreeNode> nextGeneration = new ArrayList<>(10);   
         for (int i = 0; i < previousGeneration.size(); i++) {
             double tdValue = td.getTrainingData();
-            System.out.println("The " + i + " expression is: " + previousGeneration.get(i).left.getNodeValue() + " " + previousGeneration.get(i).getNodeValue() + " " + previousGeneration.get(i).right.getNodeValue());
-            double myValue = this.evaluate(previousGeneration.get(i), tdValue);
-            System.out.println("The " + i + " value is: " + myValue);
-            System.out.println("The " + i + " fitness value is: " + myValue); 
-            
-            
+            System.out.println("The " + i + " expression is: " + previousGeneration.get(i).left.getNodeValue() + " " + previousGeneration.get(i).getNodeValue() + " " + previousGeneration.get(i).right.getNodeValue());              
         }
-        System.out.println("Creating 2nd generation...");
+        
         for(int k = 0; k<nextGeneration.size();k++){
             System.out.println("The " + k + " expression is: " + nextGeneration.get(k).left.getNodeValue() + " " + nextGeneration.get(k).getNodeValue() + " " + nextGeneration.get(k).right.getNodeValue());
          }
@@ -56,31 +50,13 @@ public class GPEnvironment {
             if(nextGeneration.isEmpty()){
                 highestValue = fitnessValue;
             }            
-            //nextGeneration.add();
             highestValue = 0;
         }
     }
     public void crossover(){}
     public void mutate(){}
     
-    public char generateRandomRootNode(int myNumber){
-        char operand;
-        Random rNumber = new Random();
-        int myAnswer = rNumber.nextInt(myNumber) + 1;
-        if(myAnswer == 1){
-            operand = '*';
-        }
-        else if(myAnswer == 2 ){
-            operand = '/';
-        }
-        else if(myAnswer ==3 ){
-            operand = '+';
-        }
-        else{
-            operand = '-';
-        }
-        return operand;
-    }
+    
     
     public char generateRandomValueNode(){
         char value;
@@ -122,36 +98,4 @@ public class GPEnvironment {
         return value;
     }
     
-      public double evaluate(Node myNode, double td){
-         double leftDouble;
-         double rightDouble;
-          //System.out.println("The left node value is: " + (double) myNode.left.getNodeValue());
-        if((myNode.left.getNodeValue() >= '0') && (myNode.left.getNodeValue() <= '9')){
-           leftDouble = (double) (myNode.left.getNodeValue() - '0');
-           //System.out.println("The left node value is: " + leftDouble);
-        }
-        else{
-           //fill in training value
-           leftDouble = td;
-        }       
-        if((myNode.right.getNodeValue() >= '0') && (myNode.right.getNodeValue() <= '9')){
-           rightDouble = (double) (myNode.right.getNodeValue() - '0');
-           //System.out.println("The right node value is: " + rightDouble);
-        }
-        else{
-           rightDouble = td;
-        }
-        if(myNode.getNodeValue() == '*'){
-            return leftDouble * rightDouble;
-        }
-        else if(myNode.getNodeValue() == '/'){
-            return leftDouble / rightDouble;
-        }
-        else if(myNode.getNodeValue() == '+'){
-            return leftDouble + rightDouble;
-        }
-        else{
-            return Math.abs(leftDouble - rightDouble);
-        }
-    }
 }
