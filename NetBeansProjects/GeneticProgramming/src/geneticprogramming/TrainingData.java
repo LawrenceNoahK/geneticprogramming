@@ -6,6 +6,10 @@
 
 package geneticprogramming;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 /**
  *
  * @author mark2681
@@ -15,30 +19,34 @@ package geneticprogramming;
 public class TrainingData {
    
     private int[] trainingData; 
-    private String myEquation = "(Math.pow(x,2)-1)/2";
     private double myScore;
+    private int length;
     
     public TrainingData(){
         
     }
-    public double getTrainingData(){
-        return 1.0;
-    }
-    public double read(int i){
-        trainingData = new int[7];
-        trainingData[0] = -3;
-        trainingData[1] = -2;
-        trainingData[2] = -1;
-        trainingData[3] = 0;
-        trainingData[4] = 1;
-        trainingData[5] = 2;
-        trainingData[6] = 3;
+    
+    public double getTrainingDataScore(int j) throws FileNotFoundException{
         
-        myScore = (Math.pow(trainingData[i],2)-1)/2;
+        Scanner s = new Scanner(new File("src/geneticprogramming/TrainingData.config"));
+        
+        int[] trainingData = new int[s.nextInt()];
+        for (int i = 0; i < trainingData.length; i++){
+            trainingData[i] = s.nextInt();          
+        }
+        
+        myScore = (Math.pow(trainingData[j],2)-1)/2;
+        s.close();
         return myScore;
     }
+    
     public double getScore(){
         return myScore;
+    }
+    public int getLength() throws FileNotFoundException{
+        Scanner s = new Scanner(new File("src/geneticprogramming/TrainingData.config"));
+        length = s.nextInt();
+        return length; 
     }
     
 }

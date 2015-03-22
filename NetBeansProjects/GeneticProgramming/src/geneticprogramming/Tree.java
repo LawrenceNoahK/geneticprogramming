@@ -26,25 +26,24 @@ public class Tree implements Comparable<Tree>{
     public Tree(int height, double fitnessValue){
         this.fitnessValue = fitnessValue;
         this.height = height;   
-        
+       
     }  
     
     public TreeNode buildTree(int[] num, int start, int end) {
-		if (start > end){
-			return null;
-                }
-		int mid = (start + end)/2;
-		
-                TreeNode myRoot;
-                
-                myRoot = new TreeNode(num[mid],'x');
-		
-                myRoot.left = buildTree(num, start, mid-1);
-		
-                myRoot.right = buildTree(num, mid+1, end);
- 
-		return myRoot;
-	}
+        
+        TreeNode myRoot;
+        int mid = (start + end)/2;
+        
+        if (start > end){
+            return null;
+        }
+        
+        myRoot = new TreeNode(num[mid],'x');		
+        myRoot.left = buildTree(num, start, mid-1);
+        myRoot.right = buildTree(num, mid+1, end);
+
+        return myRoot;
+    }
     
    
     public void traverseTree(TreeNode pointerNode){
@@ -52,79 +51,68 @@ public class Tree implements Comparable<Tree>{
             traverseTree(pointerNode.left);
             
             if((pointerNode.left == null) && (pointerNode.right == null)){
-                pointerNode.setNodeValue(generateRandomValueNode());
+                pointerNode.setNodeValue(generateRandomOperandNode());
+                pointerNode.setNodeTypeValue("OPERAND");
             }
             else{
-                 //System.out.println("gets in multiply");
-                pointerNode.setNodeValue(generateRandomRootNode(4));
+                pointerNode.setNodeValue(generateRandomOperatorNode());
+                pointerNode.setNodeTypeValue("OPERATOR");
             }
             System.out.print(pointerNode.getNodeValue());
-            
+           
             traverseTree(pointerNode.right);
             
         }
         
     }
-    public char generateRandomValueNode(){
-        char value;
+    public char generateRandomOperandNode(){
         Random rNumber = new Random();
         int myAnswer = rNumber.nextInt(11);
-        if(myAnswer == 0){
-            value = '0';
+        switch(myAnswer){
+            case 0: 
+                return '0';
+            case 1: 
+                return '1';
+            case 2: 
+                return '2';
+            case 3: 
+                return '3';    
+            case 4: 
+                return '4';     
+            case 5: 
+                return '5';
+            case 6: 
+                return '6';
+            case 7: 
+                return '7';
+            case 8: 
+                return '8';    
+            case 9: 
+                return '9';       
+            default: 
+                return 'x';
+                
         }
-        else if(myAnswer == 1 ){
-            value = '1';
-        }
-        else if(myAnswer == 2 ){
-            value = '2';
-        }
-        else if(myAnswer == 3 ){
-            value = '3';
-        }
-        else if(myAnswer == 4 ){
-            value = '4';
-        }
-        else if(myAnswer == 5 ){
-            value = '5';
-        }
-        else if(myAnswer == 6 ){
-            value = '6';
-        }
-        else if(myAnswer == 7 ){
-            value = '7';
-        }
-        else if(myAnswer == 8 ){
-            value = '8';
-        }
-        else if(myAnswer == 9 ){
-            value = '9';
-        }
-        else{
-            value = 'x';
-        }
-        return value;
+       
     }
     
-     public char generateRandomRootNode(int myNumber){
-        char operand;
+     public char generateRandomOperatorNode(){
+        
         Random rNumber = new Random();
-        int myAnswer = rNumber.nextInt(myNumber) + 1;
-        if(myAnswer == 1){
-            operand = '*';
+        int myAnswer = rNumber.nextInt(4) + 1;
+        switch(myAnswer){
+            case 1: 
+                return '*';
+            case 2: 
+                return '/';
+            case 3:
+                return '+';
+            default:
+                return '-';
         }
-        else if(myAnswer == 2 ){
-            operand = '/';
-        }
-        else if(myAnswer ==3 ){
-            operand = '+';
-        }
-        else{
-            operand = '-';
-        }
-        return operand;
     }
      
-   public double evaluate(TreeNode rootNode, double valueOfX){
+   public double evaluateTree(TreeNode rootNode, double valueOfX){
   
        switch (rootNode.getNodeValue()){
        
@@ -151,13 +139,13 @@ public class Tree implements Comparable<Tree>{
          case '0': 
              return (double)rootNode.getNodeValue()-'0';
          case '+': 
-             return evaluate(rootNode.left, valueOfX) + evaluate(rootNode.right, valueOfX);
+             return evaluateTree(rootNode.left, valueOfX) + evaluateTree(rootNode.right, valueOfX);
          case '-': 
-             return evaluate(rootNode.left, valueOfX) - evaluate(rootNode.right, valueOfX);
+             return evaluateTree(rootNode.left, valueOfX) - evaluateTree(rootNode.right, valueOfX);
          case '*': 
-             return evaluate(rootNode.left, valueOfX) * evaluate(rootNode.right, valueOfX);
+             return evaluateTree(rootNode.left, valueOfX) * evaluateTree(rootNode.right, valueOfX);
          case '/': 
-             return evaluate(rootNode.left, valueOfX) / evaluate(rootNode.right, valueOfX);
+             return evaluateTree(rootNode.left, valueOfX) / evaluateTree(rootNode.right, valueOfX);
          default : 
              return 0.0;
 
