@@ -12,20 +12,20 @@ package geneticprogramming;
  */
 public class TreeNode{
     
-    private char data;  
-    private String nodeType;
+    private char data;   
     TreeNode left;
     TreeNode right;
-    private int key;
+    int key;
+    String nodeType;
     
     //constructor
     //add height/fitness values
     public TreeNode(int key,char data){
         this.key = key;
         this.data = data;
-        this.nodeType = nodeType;
         this.left = left;
         this.right = right;
+        this.nodeType = nodeType;
     }   
     
     //set node value
@@ -43,15 +43,16 @@ public class TreeNode{
         //get node value
     public int getKeyValue(){
         return key;
-    }    
-    public void setNodeTypeValue(String value){
-        nodeType = value;
+    }  
+    public void setNodeTypeValue(String myNode){
+        nodeType = myNode;
     }
+        //get node value
     
-    //get node value
     public String getNodeTypeValue(){
         return nodeType;
-    } 
+    }    
+    
     public String toString(){
         return "key " + key + " has data value of: " + data;
     }

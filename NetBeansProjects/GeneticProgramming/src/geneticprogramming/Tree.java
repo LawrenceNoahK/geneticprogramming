@@ -6,6 +6,7 @@
 
 package geneticprogramming;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -22,28 +23,31 @@ public class Tree implements Comparable<Tree>{
     TreeNode root;
     String nodeLocation;
     TreeNode myRoot;
+    ArrayList<TreeNode> nodes = new ArrayList<TreeNode>();
+
     
     public Tree(int height, double fitnessValue){
         this.fitnessValue = fitnessValue;
         this.height = height;   
-       
+        
     }  
     
     public TreeNode buildTree(int[] num, int start, int end) {
-        
-        TreeNode myRoot;
-        int mid = (start + end)/2;
-        
-        if (start > end){
-            return null;
-        }
-        
-        myRoot = new TreeNode(num[mid],'x');		
-        myRoot.left = buildTree(num, start, mid-1);
-        myRoot.right = buildTree(num, mid+1, end);
-
-        return myRoot;
-    }
+		if (start > end){
+			return null;
+                }
+		int mid = (start + end)/2;
+		
+                TreeNode myRoot;
+                
+                myRoot = new TreeNode(num[mid],'x');
+		
+                myRoot.left = buildTree(num, start, mid-1);
+		
+                myRoot.right = buildTree(num, mid+1, end);
+ 
+		return myRoot;
+	}
     
    
     public void traverseTree(TreeNode pointerNode){
@@ -53,66 +57,80 @@ public class Tree implements Comparable<Tree>{
             if((pointerNode.left == null) && (pointerNode.right == null)){
                 pointerNode.setNodeValue(generateRandomOperandNode());
                 pointerNode.setNodeTypeValue("OPERAND");
+                getNodes().add(pointerNode);
             }
             else{
-                pointerNode.setNodeValue(generateRandomOperatorNode());
+                pointerNode.setNodeValue(generateRandomOperatorNode(4));
                 pointerNode.setNodeTypeValue("OPERATOR");
+                getNodes().add(pointerNode);
             }
             System.out.print(pointerNode.getNodeValue());
-           
+            
             traverseTree(pointerNode.right);
             
         }
         
     }
     public char generateRandomOperandNode(){
+        char value;
         Random rNumber = new Random();
         int myAnswer = rNumber.nextInt(11);
-        switch(myAnswer){
-            case 0: 
-                return '0';
-            case 1: 
-                return '1';
-            case 2: 
-                return '2';
-            case 3: 
-                return '3';    
-            case 4: 
-                return '4';     
-            case 5: 
-                return '5';
-            case 6: 
-                return '6';
-            case 7: 
-                return '7';
-            case 8: 
-                return '8';    
-            case 9: 
-                return '9';       
-            default: 
-                return 'x';
-                
+        if(myAnswer == 0){
+            value = '0';
         }
-       
+        else if(myAnswer == 1 ){
+            value = '1';
+        }
+        else if(myAnswer == 2 ){
+            value = '2';
+        }
+        else if(myAnswer == 3 ){
+            value = '3';
+        }
+        else if(myAnswer == 4 ){
+            value = '4';
+        }
+        else if(myAnswer == 5 ){
+            value = '5';
+        }
+        else if(myAnswer == 6 ){
+            value = '6';
+        }
+        else if(myAnswer == 7 ){
+            value = '7';
+        }
+        else if(myAnswer == 8 ){
+            value = '8';
+        }
+        else if(myAnswer == 9 ){
+            value = '9';
+        }
+        else{
+            value = 'x';
+        }
+        return value;
     }
     
-     public char generateRandomOperatorNode(){
-        
+     public char generateRandomOperatorNode(int myNumber){
+        char operand;
         Random rNumber = new Random();
-        int myAnswer = rNumber.nextInt(4) + 1;
-        switch(myAnswer){
-            case 1: 
-                return '*';
-            case 2: 
-                return '/';
-            case 3:
-                return '+';
-            default:
-                return '-';
+        int myAnswer = rNumber.nextInt(myNumber) + 1;
+        if(myAnswer == 1){
+            operand = '*';
         }
+        else if(myAnswer == 2 ){
+            operand = '/';
+        }
+        else if(myAnswer ==3 ){
+            operand = '+';
+        }
+        else{
+            operand = '-';
+        }
+        return operand;
     }
      
-   public double evaluateTree(TreeNode rootNode, double valueOfX){
+   public double evaluate(TreeNode rootNode, double valueOfX){
   
        switch (rootNode.getNodeValue()){
        
@@ -139,13 +157,13 @@ public class Tree implements Comparable<Tree>{
          case '0': 
              return (double)rootNode.getNodeValue()-'0';
          case '+': 
-             return evaluateTree(rootNode.left, valueOfX) + evaluateTree(rootNode.right, valueOfX);
+             return evaluate(rootNode.left, valueOfX) + evaluate(rootNode.right, valueOfX);
          case '-': 
-             return evaluateTree(rootNode.left, valueOfX) - evaluateTree(rootNode.right, valueOfX);
+             return evaluate(rootNode.left, valueOfX) - evaluate(rootNode.right, valueOfX);
          case '*': 
-             return evaluateTree(rootNode.left, valueOfX) * evaluateTree(rootNode.right, valueOfX);
+             return evaluate(rootNode.left, valueOfX) * evaluate(rootNode.right, valueOfX);
          case '/': 
-             return evaluateTree(rootNode.left, valueOfX) / evaluateTree(rootNode.right, valueOfX);
+             return evaluate(rootNode.left, valueOfX) / evaluate(rootNode.right, valueOfX);
          default : 
              return 0.0;
 
@@ -163,5 +181,9 @@ public class Tree implements Comparable<Tree>{
             return 0;
         }
     }
+    public ArrayList<TreeNode> getNodes() {
+        return this.nodes;
+    }
+
 
 }

@@ -40,6 +40,22 @@ public class TrainingData {
         return myScore;
     }
     
+        public int getIndex(int j) throws FileNotFoundException{
+        
+        Scanner s = new Scanner(new File("src/geneticprogramming/TrainingData.config"));
+        int indexValue = 0;
+        
+        int[] trainingData = new int[s.nextInt()];
+        for (int i = 0; i < trainingData.length; i++){
+            trainingData[i] = s.nextInt();          
+        }
+        
+        indexValue = trainingData[j];
+        s.close();
+        return indexValue;
+    }
+    
+    
     public double getScore(){
         return myScore;
     }
