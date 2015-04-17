@@ -12,23 +12,23 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 
 /**
  * A simple demonstration application showing how to create a line chart using data from an
  * {@link XYDataset}.
  *
  */
-public class JFreeChartDemo extends ApplicationFrame {
+public class GPInterface extends ApplicationFrame {
 
     /**
      * Creates a new demo.
      *
      * @param title  the frame title.
      */
-    final XYSeries series2 = new XYSeries("Fitness Value");
+    final XYSeries series = new XYSeries("Fitness Value");
     
-    public JFreeChartDemo(final String title) {
+    
+   GPInterface(final String title) {
 
         
         super(title);
@@ -51,14 +51,11 @@ public class JFreeChartDemo extends ApplicationFrame {
      */
     public XYDataset createDataset(double x, double y) {
         
+        series.add(x, y);
         
-        series2.add(x, y);
-        
-
         final XYSeriesCollection dataset = new XYSeriesCollection();
-        //dataset.addSeries(series1);
-        dataset.addSeries(series2);
-       // dataset.addSeries(series3);
+       
+        dataset.addSeries(series);
                 
         return dataset;
         
@@ -87,14 +84,10 @@ public class JFreeChartDemo extends ApplicationFrame {
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         chart.setBackgroundPaint(Color.white);
-
-//        final StandardLegend legend = (StandardLegend) chart.getLegend();
-  //      legend.setDisplaySeriesShapes(true);
         
         // get a reference to the plot for further customisation...
         final XYPlot plot = chart.getXYPlot();
         plot.setBackgroundPaint(Color.lightGray);
-    //    plot.setAxisOffset(new Spacer(Spacer.ABSOLUTE, 5.0, 5.0, 5.0, 5.0));
         plot.setDomainGridlinePaint(Color.white);
         plot.setRangeGridlinePaint(Color.white);
         

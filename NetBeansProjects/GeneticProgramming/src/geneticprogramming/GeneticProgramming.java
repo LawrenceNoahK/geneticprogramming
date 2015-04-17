@@ -6,16 +6,10 @@
 
 package geneticprogramming;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Properties;
-import java.util.Random;
 import org.jfree.ui.RefineryUtilities;
 /**
  *
@@ -26,14 +20,17 @@ public class GeneticProgramming {
     /**
      * @param args the command line arguments
      */
+    //main driver class
     public static void main(String[] args) throws FileNotFoundException, IOException {
-                
+          
+        //class variables
         int populationSize = 0; 
         int maxTreeHeight = 0;
         double percentRegeneration = 0;
+        double percentMutation = 0;
         
         // TODO code application logic here
-        GPEnvironment myEnvironment = new GPEnvironment();
+        GPEnvironment myEnvironment = new GPEnvironment(populationSize);
         
         //load settings
         myEnvironment.loadSettings();
@@ -42,33 +39,59 @@ public class GeneticProgramming {
         populationSize = myEnvironment.getPopulationSize();
         maxTreeHeight =  myEnvironment.getMaxTreeHeight();
         percentRegeneration = myEnvironment.getPercentRegeneration();
+        percentMutation = myEnvironment.getPercentMutation();
+        
         int numberOfNewPrograms = (int) (populationSize * percentRegeneration);
 
-        TreeNode root;
+        //class variables based on settings
+        TreeNode root =null;
         ArrayList<Tree> arrayOfTrees = new ArrayList<Tree>(populationSize);
-        ArrayList<Tree> newProgramArray = new ArrayList<Tree>(numberOfNewPrograms);
-        
+        ArrayList<Tree> newProgramArray = new ArrayList<Tree>(numberOfNewPrograms);     
         ArrayList<TreeNode> list = new ArrayList<TreeNode>(populationSize);
-        List<Tree> nextGeneration = new ArrayList<Tree>();   
         TrainingData td = new TrainingData();
               
         //build initial generation
         arrayOfTrees = myEnvironment.buildInitialGeneration();
         
         //assign freeChart
-        JFreeChartDemo demo = new JFreeChartDemo("Genetic Programming");
+        GPInterface demo = new GPInterface("Genetic Programming");
         
         //temporary threshold
-        double threshold = 5.0;
+        double threshold = 1.0;
         
         int count = 0;
         while(arrayOfTrees.get(0).fitnessValue > threshold){
+           if(count> 1000){
+               break;
+           }
             myEnvironment.selection(arrayOfTrees);
             myEnvironment.addNewPrograms(arrayOfTrees);
+            ArrayList<Tree> crossoverArray = new ArrayList<Tree>();
+            ArrayList<Tree> mutateArray = new ArrayList<Tree>();
+            
+            System.out.println("Crossing over trees...");
+            crossoverArray = myEnvironment.crossoverTrees(arrayOfTrees,maxTreeHeight,td);
+            System.out.println("Crossover over complete, adding to existing array...");
+            arrayOfTrees.addAll(crossoverArray);
+            
+            for (int m=0;m<arrayOfTrees.size();m++){
+                System.out.println("After crossover: " +   m + " has value: "  + arrayOfTrees.get(m).getNodes() );
+            }
+            
             System.out.println("Mutating...");
-            myEnvironment.mutate(arrayOfTrees.get(0));
+            //myEnvironment.mutate(arrayOfTrees.get(0));
+            mutateArray = myEnvironment.mutateTrees(arrayOfTrees, percentMutation, td);
+            arrayOfTrees.addAll(mutateArray);
+             for (int m=0;m<arrayOfTrees.size();m++){
+                System.out.println("After mutation: " +   m + " has value: "  + arrayOfTrees.get(m).getNodes() );
+            }
+            
+            Collections.sort(arrayOfTrees);
             demo.createDataset(count, arrayOfTrees.get(0).fitnessValue);
             System.out.println("The best fitness value is: " + arrayOfTrees.get(0).fitnessValue);
+            //System.out.println("The best fitness value is: " + arrayOfTrees.get(0).printTree(root));
+            System.out.println("The best fitness equation is: " + arrayOfTrees.get(0).getNodes());
+            System.out.println("The generation number is: "+ count);
             count++;
         }
         System.out.println("The number of generations is: " + count);

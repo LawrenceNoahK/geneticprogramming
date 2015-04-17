@@ -18,19 +18,22 @@ import java.util.Scanner;
         
 public class TrainingData {
    
-    private int[] trainingData; 
+    //class variables
+    public int[] trainingData; 
     private double myScore;
     private int length;
     
+    //constructor
     public TrainingData(){
-        
+        int[] td = trainingData;
     }
     
+    //return value of training data equation
     public double getTrainingDataScore(int j) throws FileNotFoundException{
         
         Scanner s = new Scanner(new File("src/geneticprogramming/TrainingData.config"));
         
-        int[] trainingData = new int[s.nextInt()];
+        trainingData = new int[s.nextInt()];
         for (int i = 0; i < trainingData.length; i++){
             trainingData[i] = s.nextInt();          
         }
@@ -40,7 +43,8 @@ public class TrainingData {
         return myScore;
     }
     
-        public int getIndex(int j) throws FileNotFoundException{
+    //return index of training data file
+    public int getIndex(int j) throws FileNotFoundException{
         
         Scanner s = new Scanner(new File("src/geneticprogramming/TrainingData.config"));
         int indexValue = 0;
@@ -55,10 +59,12 @@ public class TrainingData {
         return indexValue;
     }
     
-    
+    //return fitness value
     public double getScore(){
         return myScore;
     }
+    
+    //return length of training data file
     public int getLength() throws FileNotFoundException{
         Scanner s = new Scanner(new File("src/geneticprogramming/TrainingData.config"));
         length = s.nextInt();
