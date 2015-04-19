@@ -34,16 +34,11 @@ public class Tree implements Comparable<Tree>{
    //constructor
    public Tree(TreeNode newRoot,int height, double fitnessValue){
         this.fitnessValue = fitnessValue;
-        this.height = height;
-        
+        this.height = height;     
         root = newRoot;
         getOperators().add(newRoot);
-        
-        //nodes.add(newRoot);
-        
     }  
-   
-   
+     
    //returns TreeNode with empty set of nodes 
    public TreeNode buildTree(int[] num, int start, int end) {
 		
@@ -58,7 +53,6 @@ public class Tree implements Comparable<Tree>{
         myRoot = root;
         
         myRoot = new TreeNode(parent,pointer,num[mid],'x');
-        //nodes.add(myRoot);
         
         myRoot.left = buildTree(num, start, mid-1);
 
@@ -76,16 +70,13 @@ public class Tree implements Comparable<Tree>{
                 pointerNode.setNodeValue(generateRandomOperandTreeNode());
                 pointerNode.setNodeTypeValue("OPERAND");
                 addNode(pointerNode);
-                //getNodes().add(pointerNode);
             }
             else{
                 pointerNode.setNodeValue(generateRandomOperatorTreeNode());
                 pointerNode.setNodeTypeValue("OPERATOR");
                 addNode(pointerNode);
-                //getNodes().add(pointerNode);
             }
-            System.out.print(pointerNode.getNodeValue());
-            
+                       
             traverseTree(pointerNode.right);
             
         }
@@ -94,20 +85,22 @@ public class Tree implements Comparable<Tree>{
    
    //returns treeNode array with filled values
    public TreeNode fillTree(ArrayList<TreeNode> myNodes, int start, int end) {    
-    TreeNode myRoot;
-    TreeNode parent = null;
-    String pointer = "";
-     myRoot = root;
+        
+       TreeNode myRoot;  
+       TreeNode parent = null;  
+       String pointer = "";
+       myRoot = root;
+   
+       if (start > end){   
+           return null;
+       }
+      
+       int mid = (start+end) / 2;  
+       myRoot = new TreeNode(parent,pointer,mid,myNodes.get(mid).data);  
+       myRoot.left = fillTree(myNodes, start, mid - 1);
+       myRoot.right = fillTree(myNodes, mid + 1, end);
     
-    if (start > end){
-        return null;
-    }
-    
-    int mid = (start+end) / 2;
-    myRoot = new TreeNode(parent,pointer,mid,myNodes.get(mid).data);
-    myRoot.left = fillTree(myNodes, start, mid - 1);
-    myRoot.right = fillTree(myNodes, mid + 1, end);
-    return myRoot;
+       return myRoot;
 }
    
    //generates a random operand TreeNode
@@ -239,29 +232,27 @@ public class Tree implements Comparable<Tree>{
    //returns fitness value of Tree
    public double calculateScore(Tree myTree,TreeNode myRoot,int maxTreeHeight) throws FileNotFoundException{
        
-//maxTreeHeight = Integer.parseInt(prop.getProperty("maxTreeHeight"));
        
-       //TreeNode myRoot = null;
        int totalNodes = (int) Math.pow(2,maxTreeHeight);
        int nodeArray[] = new int[(int)Math.pow(2,maxTreeHeight)];
+       double fitnessScore = 0.0; 
         
-        for(int i=0;i<totalNodes;i++){
+       for(int i=0;i<totalNodes;i++){
             nodeArray[i] = i;
-        }
-       //myRoot = myTree.buildTree(nodeArray,1, totalNodes-1);
-       //myRoot = myTree.getRoot();
-       double fitnessScore = 0.0;
-       for(int k=0;k<td.getLength();k++){
-            //System.out.println("The length is: " + td.getLength());
+       }
+       
+       for(int k=0;k<td.getLength();k++){ 
             fitnessScore = fitnessScore + Math.abs(td.getTrainingDataScore(k) - evaluateTree(myRoot,  td.getIndex(k)));    
        }
        
        Double myFitnessScore = fitnessScore;
        if(myFitnessScore.isInfinite() || myFitnessScore.isNaN()){
-        fitnessScore = Double.POSITIVE_INFINITY;
+            fitnessScore = Double.POSITIVE_INFINITY;
        }
+       
        System.out.println("The final tree fitness score is: " + fitnessScore);
        myTree.fitnessValue = fitnessScore;
+       
        return fitnessScore;
    }
 
@@ -276,9 +267,8 @@ public class Tree implements Comparable<Tree>{
           
         myNode = getOperators().get(randomInt);
           
-        //fix parent, now null
+        
         if (myNode.getParent() == null ||myNode.isRoot()) {
-            System.out.println("The selected node is root, reselecting...");
             myNode = getRandomOperatorNode();
         }
         

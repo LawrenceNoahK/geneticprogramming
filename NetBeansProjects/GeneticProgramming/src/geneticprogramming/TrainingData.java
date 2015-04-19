@@ -59,11 +59,6 @@ public class TrainingData {
         return indexValue;
     }
     
-    //return fitness value
-    public double getScore(){
-        return myScore;
-    }
-    
     //return length of training data file
     public int getLength() throws FileNotFoundException{
         Scanner s = new Scanner(new File("src/geneticprogramming/TrainingData.config"));

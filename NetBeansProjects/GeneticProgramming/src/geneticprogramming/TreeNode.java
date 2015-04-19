@@ -86,41 +86,6 @@ public class TreeNode{
         return "key " + key + " has data value of: " + data;
     }
     
-    //returns TreeNode copy of node
-    public TreeNode copyNode(Tree newTree,TreeNode nodeToCopy, TreeNode newNodeParent) {
-         
-        TreeNode myNode = null;
-        String pointer = "";
-        Tree tree = newTree;
-        
-        if (newNodeParent == null) {
-                 myNode = new TreeNode(newNodeParent,pointer,key,data);
-                 //newNode.setLevel(nodeToCopy.getLevel());
-                 //newNode.setRoot(true);
-                 tree = new Tree(myNode,3, 0.0);
-                 //newNode.setTree(tree);
-         } 
-         else {
-                 myNode = new TreeNode(newNodeParent,pointer,key,data);
-                 //newNode.setLevel(nodeToCopy.getLevel());
-                 //newNode.setRoot(nodeToCopy.isNodeRoot);
-                 tree.addNode(myNode);
-         }
-         TreeNode leftNodeToCopy = nodeToCopy.left;
-         if (leftNodeToCopy != null) {
-                 myNode.setLeft(copyNode(tree, leftNodeToCopy, myNode));
-                 
-         }
-         
-         TreeNode rightNodeToCopy = nodeToCopy.right;
-         
-         if (rightNodeToCopy != null) {
-                 myNode.setRight(copyNode(tree, rightNodeToCopy, myNode));
-         }
-         
-         return myNode;
- }
-
     //sets Tree from TreeNode
     public void setTree(Tree newTree) {
          this.tree = newTree;
@@ -190,8 +155,8 @@ public class TreeNode{
     }
     
     //gets pointer of TreeNode
-    public String getPointer() {
-                return this.pointer;
+    public String getPointer() {       
+        return this.pointer;
         }
 
 }  

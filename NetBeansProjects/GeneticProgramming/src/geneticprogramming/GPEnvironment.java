@@ -10,16 +10,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Random;
-
 /**
  *
  * @author mark2681
  */
-public class GPEnvironment {
+public class GPEnvironment{
    
     //initial variables
     public TrainingData td = new TrainingData();
@@ -28,6 +28,7 @@ public class GPEnvironment {
     double percentRegeneration = 0.0;
     double percentMutation = 0.0;
     double percentCrossover = 0.0;
+    private ArrayList<Tree> arrayOfTreesClone;
     
     //constructor, add initial variables here?
     public GPEnvironment(int population) {
@@ -54,18 +55,16 @@ public class GPEnvironment {
         
         int totalNodes = (int) Math.pow(2,maxTreeHeight);
         int nodeArray[] = new int[(int)Math.pow(2,maxTreeHeight)];
+        TreeNode myRoot = null;
+        ArrayList<Tree> arrayOfTrees = new ArrayList<Tree>(populationSize);      
+        double fitnessScore = 0.0;
         
+        
+        //fill in node array
         for(int i=0;i<totalNodes;i++){
             nodeArray[i] = i;
         }
                
-        TreeNode myRoot = null;
-        ArrayList<Tree> arrayOfTrees = new ArrayList<Tree>(populationSize);
-        ArrayList<Tree> nextGeneration = new ArrayList<Tree>();
-        
-        double fitnessScore = 0.0;
-        double highestValue=0.0;
-        
         for(int j=0;j<populationSize;j++){
             
             Tree newTree = new Tree(myRoot,maxTreeHeight,0.0);
@@ -73,6 +72,7 @@ public class GPEnvironment {
             newTree.traverseTree(myRoot);
             arrayOfTrees.add(newTree);
             
+            //assign fitness score
             for(int k=0;k<td.getLength();k++){
                 fitnessScore = fitnessScore + Math.abs(td.getTrainingDataScore(k) - arrayOfTrees.get(j).evaluateTree(myRoot,  td.getIndex(k)));    
             }
@@ -87,14 +87,11 @@ public class GPEnvironment {
                  arrayOfTrees.get(j).fitnessValue = Double.POSITIVE_INFINITY;
             }
             
-            
             //reset the score
             fitnessScore = 0.0;
         }
            for(int k= 0; k< arrayOfTrees.size();k++){
                 System.out.println("The fitness score for " + k + " is: " + arrayOfTrees.get(k).fitnessValue);
-               
-               // System.out.println("Array size is: " + arrayOfTrees.get(k).getNodes().size());
                
                 for (int m = 0;m < arrayOfTrees.get(k).getNodes().size();m++){
                     System.out.print(arrayOfTrees.get(k).getNodes().get(m).getNodeValue());
@@ -115,7 +112,7 @@ public class GPEnvironment {
         
         //display array before removal
         for (int q = 0; q < arrayOfTrees.size();q++){
-            System.out.println("Before removal: " + q + " has value: "  + arrayOfTrees.get(q).fitnessValue );
+            System.out.println("Selection: " + q + " has value: "  + arrayOfTrees.get(q).fitnessValue );
             
         }
                
@@ -156,8 +153,7 @@ public class GPEnvironment {
         ArrayList<Tree> newProgramArray = new ArrayList<Tree>(numberOfNewPrograms);     
         totalNodes = (int) Math.pow(2,maxTreeHeight);
         nodeArray = new int[(int)Math.pow(2,maxTreeHeight)];
-        
-        
+               
         for(int i=0;i<totalNodes;i++){
             nodeArray[i] = i;
         }
@@ -177,30 +173,14 @@ public class GPEnvironment {
             newProgramArray.get(newProgramArray.size()-1).fitnessValue = fitnessScore;
             fitnessScore = 0.0;
         }       
-        //something is not right here fix it     
+        
         for (int m=0;m<newProgramArray.size();m++){
-            //newTree = new Tree(myRoot,maxTreeHeight,0.0);          
-            //myRoot = newTree.buildTree(nodeArray,1, totalNodes-1);
-            //newTree.traverseTree(myRoot);
-            
-             //newProgramArray.get(m).setRoot(myRoot);
-            //calculate fitness value score
-            //for(int k=0;k<td.getLength();k++){
-            //    fitnessScore = fitnessScore + Math.abs(td.getTrainingDataScore(k) - newProgramArray.get(m).evaluateTree(myRoot,  td.getIndex(k)));    
-            //}
-              
-             
-            //assign fitness values to new program trees
-            
-           
-            //newProgramArray.get(m).fitnessValue = fitnessScore;
             System.out.println("New program array at " + m + " is: " + newProgramArray.get(m).fitnessValue);
-            //fitnessScore = 0.0;
         }
         
-        System.out.println("Adding new programs to existing array...");
         arrayOfTrees.addAll(newProgramArray);
         
+        //sort array of trees
         Collections.sort(arrayOfTrees);
         
          for (int q = 0; q < arrayOfTrees.size();q++){
@@ -230,17 +210,12 @@ public class GPEnvironment {
         String type = randomNode.getNodeTypeValue();
         
         if(type.equals("OPERAND")) {
-            System.out.println("The operand is: " + type);
-            //randomNode.setNodeValue(myTree.generateRandomOperandTreeNode());
             myTree.getNodes().get(random).setNodeValue(myTree.generateRandomOperandTreeNode());
         } 
         else if (type.equals("OPERATOR")) {
-            System.out.println("The operator is: " + type);
-            myTree.getNodes().get(random).setNodeValue(myTree.generateRandomOperatorTreeNode());
-            //randomNode.setNodeValue(myTree.generateRandomOperatorTreeNode());
+            myTree.getNodes().get(random).setNodeValue(myTree.generateRandomOperatorTreeNode());       
         }
-        
-        
+              
         //calculate myroot
         myRoot = myTree.fillTree(myTree.getNodes(),0, totalNodes-1);
         
@@ -260,7 +235,6 @@ public class GPEnvironment {
     }
         
     //mutate percentage of population
-    //still need to fix this
     public ArrayList<Tree> mutateTrees(ArrayList<Tree> arrayOfTrees, double percentMutation,TrainingData td) throws FileNotFoundException{
          
         //initialize random number
@@ -269,17 +243,22 @@ public class GPEnvironment {
         //variables for mutation
         int size = arrayOfTrees.size();
         int numberToMutate = (int) (percentMutation * size);
+        
         ArrayList<Tree> mutateArray = new ArrayList<Tree>(numberToMutate);
+        ArrayList<Tree> copy = new ArrayList<Tree>(arrayOfTrees);
+        
         
         for(int i=0;i<numberToMutate;i++){
             int randomInt = rNumber.nextInt(size);
+            
             Tree tree = arrayOfTrees.get(randomInt);
-        
+            //Tree tree = copy.get(randomInt);
+            
             //print out selected tree
-            Tree newTree = mutate(tree);
-        
+            //Tree newTree = mutate(tree);
+            mutate(tree);
             //add new tree to mutateArray
-            mutateArray.add(newTree);
+            //mutateArray.add(newTree);
             
         }
         
@@ -292,11 +271,11 @@ public class GPEnvironment {
         int totalNodes = (int) Math.pow(2,maxTreeHeight)-1;
         Tree newTree = new Tree(myRoot,maxTreeHeight,0.0); 
                
-        //set crossover point
-        int crossPoint = (int) (Math.random()*tree1.getNodes().size());
-        
+        //set crossover point       
+        int crossoverPoint = (int) (Math.random()*tree1.getNodes().size());
+        System.out.println("The crosspoint is: " + crossoverPoint);
             for (int i=0;i<tree1.getNodes().size();i++){           
-                 if (i < crossPoint){
+                 if (i < crossoverPoint){
                     newTree.getNodes().add(tree1.getNodes().get(i));                  
                  }
                 else{
@@ -308,8 +287,7 @@ public class GPEnvironment {
         
             //adding myRoot to existing tree
             newTree.setRoot(myRoot);
-        
-        
+               
             newTree.fitnessValue = newTree.calculateScore(newTree,myRoot,maxTreeHeight);
           
              //calculate new score
@@ -328,6 +306,7 @@ public class GPEnvironment {
         
         ArrayList<Tree> crossoverArray = new ArrayList<Tree>();
         int size = newTrees.size();
+       
         // calculate the number of crossovers to perform
         int crossoverSize = (int) (percentCrossover * size);
        
