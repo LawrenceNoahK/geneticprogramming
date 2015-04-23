@@ -21,7 +21,7 @@ public class GeneticProgramming {
      * @param args the command line arguments
      */
     //main driver class
-    public static void main(String[] args) throws FileNotFoundException, IOException {
+    public static void main(String[] args) throws FileNotFoundException, IOException, CloneNotSupportedException {
         System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");  
         
         //class variables
@@ -52,11 +52,11 @@ public class GeneticProgramming {
         GPInterface demo = new GPInterface("Genetic Programming");
         
         //temporary threshold
-        double threshold = 1.0;
+        double threshold = 0.0;
         
         int count = 0;
         while(arrayOfTrees.get(0).fitnessValue > threshold){
-           if(count> 10000){
+           if(count> 2000){
                break;
            }
             
@@ -65,38 +65,37 @@ public class GeneticProgramming {
             ArrayList<Tree> crossoverArray = new ArrayList<Tree>();
             ArrayList<Tree> mutateArray = new ArrayList<Tree>();
             
-            System.out.println("Crossing over trees...");
+            //System.out.println("Crossing over trees...");
             crossoverArray = myEnvironment.crossoverTrees(arrayOfTrees,maxTreeHeight,td);
-            System.out.println("Crossover over complete, adding to existing array...");
+            //System.out.println("Crossover over complete, adding to existing array...");
             arrayOfTrees.addAll(crossoverArray);
-            Collections.sort(arrayOfTrees);
-            
-            for (int m=0;m<arrayOfTrees.size();m++){
-                System.out.println("After crossover: " +   m + " has value: "  + arrayOfTrees.get(m).fitnessValue);
-            }
-            
-            mutateArray = myEnvironment.mutateTrees(arrayOfTrees, percentMutation, td);
+            //Collections.sort(arrayOfTrees);
+         
+            mutateArray= myEnvironment.mutateTrees(arrayOfTrees, percentMutation, td);
+            //for(int i= 0;i<mutateArray.size();i++){
+            //    System.out.println("Mutate array at: " + i + " is "+ mutateArray.get(i).getNodes());
+            //}
+            System.out.println();
             arrayOfTrees.addAll(arrayOfTrees.size(),mutateArray);
             Collections.sort(arrayOfTrees);
-             for (int m=0;m<arrayOfTrees.size();m++){
-                System.out.println("After mutation: " +   m + " has value: "  + arrayOfTrees.get(m).fitnessValue );
-            }
-            
-            
-             for (int m=0;m<arrayOfTrees.size();m++){
-                System.out.println("After sort: " +   m + " has value: "  + arrayOfTrees.get(m).fitnessValue );
-            }
+           //for(int i= 0;i<arrayOfTrees.size()-1;i++){
+           //     myEnvironment.printExpression(arrayOfTrees.get(i).getRoot());
+           //     System.out.print(" with a score of: " + arrayOfTrees.get(i).fitnessValue);
+           //     System.out.println();
+            //}
             mutateArray.clear();
             crossoverArray.clear();
             demo.createDataset(count, arrayOfTrees.get(0).fitnessValue);
+            myEnvironment.printExpression(arrayOfTrees.get(0).getRoot());
+            System.out.println();
+            
             System.out.println("The best fitness value is: " + arrayOfTrees.get(0).fitnessValue);
-            System.out.println("The best fitness equation is: " + arrayOfTrees.get(0).getNodes());
+            //System.out.println("The best fitness equation is: " + arrayOfTrees.get(0).getNodes());
             System.out.println("The generation number is: "+ count);
             count++;
         }
         System.out.println("The number of generations is: " + count);
-         
-        
+        //myEnvironment.printExpression(myRoot);
         demo.pack();
         RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);

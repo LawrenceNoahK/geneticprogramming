@@ -158,5 +158,8 @@ public class TreeNode{
     public String getPointer() {       
         return this.pointer;
         }
+     public boolean isLeaf() {
+        return (left == null) && (right == null);
+    }
 
 }  

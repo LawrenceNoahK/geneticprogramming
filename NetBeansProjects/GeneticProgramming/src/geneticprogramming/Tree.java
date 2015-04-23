@@ -7,6 +7,7 @@
 package geneticprogramming;
 
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,7 +15,7 @@ import java.util.Random;
  *
  * @author mark2681
  */
-public class Tree implements Comparable<Tree>{
+public class Tree implements Comparable<Tree>,Cloneable{
    
    //class variables
    double fitnessValue;
@@ -30,7 +31,12 @@ public class Tree implements Comparable<Tree>{
    ArrayList<TreeNode> operands = new ArrayList<TreeNode>();
    public TrainingData td = new TrainingData();
    private TreeNode parent = null;
-
+   
+   @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+   
    //constructor
    public Tree(TreeNode newRoot,int height, double fitnessValue){
         this.fitnessValue = fitnessValue;
@@ -233,13 +239,13 @@ public class Tree implements Comparable<Tree>{
    public double calculateScore(Tree myTree,TreeNode myRoot,int maxTreeHeight) throws FileNotFoundException{
        
        
-       int totalNodes = (int) Math.pow(2,maxTreeHeight);
-       int nodeArray[] = new int[(int)Math.pow(2,maxTreeHeight)];
+      // int totalNodes = (int) Math.pow(2,maxTreeHeight)-1;
+       //int nodeArray[] = new int[(int)Math.pow(2,maxTreeHeight)-1];
        double fitnessScore = 0.0; 
         
-       for(int i=0;i<totalNodes;i++){
-            nodeArray[i] = i;
-       }
+       //for(int i=0;i<totalNodes;i++){
+       //     nodeArray[i] = i;
+       //}
        
        for(int k=0;k<td.getLength();k++){ 
             fitnessScore = fitnessScore + Math.abs(td.getTrainingDataScore(k) - evaluateTree(myRoot,  td.getIndex(k)));    
@@ -250,7 +256,7 @@ public class Tree implements Comparable<Tree>{
             fitnessScore = Double.POSITIVE_INFINITY;
        }
        
-       System.out.println("The final tree fitness score is: " + fitnessScore);
+       //System.out.println("The final tree fitness score is: " + fitnessScore);
        myTree.fitnessValue = fitnessScore;
        
        return fitnessScore;
@@ -295,4 +301,15 @@ public class Tree implements Comparable<Tree>{
         return this.nodes;
     }
    
+   public String traverse (TreeNode root){ // Each child of a tree is a root of its subtree.
+    String myString ="";
+    if (root.left != null){
+        traverse (root.left);
+    }
+    myString = myString + root.data;
+    if (root.right != null){
+        traverse (root.right);
+    }
+    return myString;
+}
 }
