@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 import org.jfree.ui.RefineryUtilities;
 /**
  *
@@ -22,6 +23,8 @@ public class GeneticProgramming {
      */
     //main driver class
     public static void main(String[] args) throws FileNotFoundException, IOException, CloneNotSupportedException {
+        
+        long startTime = System.nanoTime();
         System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");  
         
         //class variables
@@ -30,6 +33,7 @@ public class GeneticProgramming {
         double percentRegeneration = 0;
         double percentMutation = 0;
         
+        //create new GP Environment
         GPEnvironment myEnvironment = new GPEnvironment(populationSize);
         
         //load settings
@@ -55,47 +59,55 @@ public class GeneticProgramming {
         double threshold = 0.0;
         
         int count = 0;
+        long duration = 0;
+        double minutes = 0.0;
         while(arrayOfTrees.get(0).fitnessValue > threshold){
-           if(count> 2000){
-               break;
+            
+            //if the count is too large, quit the while loop
+            if(duration> 900000){
+               System.out.println("The duration is: " + duration);
+                break;
            }
             
+            //select the fittest programs
             myEnvironment.selection(arrayOfTrees);
+            
+            //add in the new programs
             myEnvironment.addNewPrograms(arrayOfTrees);
+            
+            //create new crossover and mutate arrays
             ArrayList<Tree> crossoverArray = new ArrayList<Tree>();
             ArrayList<Tree> mutateArray = new ArrayList<Tree>();
             
-            //System.out.println("Crossing over trees...");
+            //crossover the trees
             crossoverArray = myEnvironment.crossoverTrees(arrayOfTrees,maxTreeHeight,td);
-            //System.out.println("Crossover over complete, adding to existing array...");
             arrayOfTrees.addAll(crossoverArray);
-            //Collections.sort(arrayOfTrees);
-         
+            Collections.sort(arrayOfTrees);
+            
+            //mutate the array
             mutateArray= myEnvironment.mutateTrees(arrayOfTrees, percentMutation, td);
-            //for(int i= 0;i<mutateArray.size();i++){
-            //    System.out.println("Mutate array at: " + i + " is "+ mutateArray.get(i).getNodes());
-            //}
-            System.out.println();
             arrayOfTrees.addAll(arrayOfTrees.size(),mutateArray);
             Collections.sort(arrayOfTrees);
-           //for(int i= 0;i<arrayOfTrees.size()-1;i++){
-           //     myEnvironment.printExpression(arrayOfTrees.get(i).getRoot());
-           //     System.out.print(" with a score of: " + arrayOfTrees.get(i).fitnessValue);
-           //     System.out.println();
-            //}
+           
+            //clear the array and plot the point
             mutateArray.clear();
             crossoverArray.clear();
             demo.createDataset(count, arrayOfTrees.get(0).fitnessValue);
-            myEnvironment.printExpression(arrayOfTrees.get(0).getRoot());
-            System.out.println();
+            System.out.print("The best equation is: ");
+            myEnvironment.printTree(arrayOfTrees.get(0).getRoot());
             
+            System.out.println();
             System.out.println("The best fitness value is: " + arrayOfTrees.get(0).fitnessValue);
-            //System.out.println("The best fitness equation is: " + arrayOfTrees.get(0).getNodes());
             System.out.println("The generation number is: "+ count);
+           
             count++;
+            long endTime = System.nanoTime();
+            duration = (endTime - startTime)/1000000;
+            minutes = ((double)TimeUnit.MILLISECONDS.toSeconds(duration))/60;
+            System.out.println("The duration is: " + minutes + " minutes");
         }
-        System.out.println("The number of generations is: " + count);
-        //myEnvironment.printExpression(myRoot);
+        System.out.println("The final number of generations is: " + count);
+        System.out.println("The final duration is: " + minutes + " minutes");
         demo.pack();
         RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
