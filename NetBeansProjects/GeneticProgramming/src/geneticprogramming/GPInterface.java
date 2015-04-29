@@ -13,19 +13,10 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 
-/**
- * A simple demonstration application showing how to create a line chart using data from an
- * {@link XYDataset}.
- *
- */
 public class GPInterface extends ApplicationFrame {
 
-    /**
-     * Creates a new demo.
-     *
-     * @param title  the frame title.
-     */
-    final XYSeries series = new XYSeries("Fitness Value");
+ 
+   XYSeries series = new XYSeries("Fitness Value");
     
     
    GPInterface(final String title) {
@@ -35,20 +26,17 @@ public class GPInterface extends ApplicationFrame {
         double x = 0.0;
         double y = 0.0;
         
+        //initial variables
         XYDataset dataset = createDataset(x, y);
-        final JFreeChart chart = createChart(dataset);
-        final ChartPanel chartPanel = new ChartPanel(chart);
+        JFreeChart chart = createChart(dataset);
+        ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(1000, 540));
         setContentPane(chartPanel);
         
 
     }
     
-    /**
-     * Creates a sample dataset.
-     * 
-     * @return a sample dataset.
-     */
+    //create dataset
     public XYDataset createDataset(double x, double y) {
         
         series.add(x, y);
@@ -61,14 +49,8 @@ public class GPInterface extends ApplicationFrame {
         
     }
     
-    /**
-     * Creates a chart.
-     * 
-     * @param dataset  the data for the chart.
-     * 
-     * @return a chart.
-     */
-    private JFreeChart createChart(final XYDataset dataset) {
+    //create chart
+    private JFreeChart createChart(XYDataset dataset) {
         
         // create the chart...
         final JFreeChart chart = ChartFactory.createXYLineChart(

@@ -6,15 +6,10 @@
 
 package geneticprogramming;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
@@ -31,17 +26,12 @@ public class GPEnvironment{
     public int maxTreeHeight = 0;
     double percentRegeneration = 0.0;
     double percentMutation = 0.0;
-    double percentCrossover = 0.0;
-     TreeNode myRoot =null;
+    double percentCrossover = 0.0;     
+    TreeNode myRoot =null;
     
     //constructor, add initial variables here?
-    public GPEnvironment(int population) {
-        population = populationSize;
-    }
-   
-    //load settings from settings.config file
-    public void loadSettings() throws FileNotFoundException, IOException{
-        Properties prop = new Properties();
+    public GPEnvironment() throws FileNotFoundException, IOException {
+       Properties prop = new Properties();
         String fileName = "src/geneticprogramming/settings.config";
         
         InputStream is = new FileInputStream(fileName);
@@ -51,9 +41,9 @@ public class GPEnvironment{
         maxTreeHeight = Integer.parseInt(prop.getProperty("maxTreeHeight"));
         percentRegeneration = Double.parseDouble(prop.getProperty("percentRegeneration"));
         percentMutation = Double.parseDouble(prop.getProperty("percentMutation"));
-        percentCrossover = Double.parseDouble(prop.getProperty("percentCrossover"));
+        percentCrossover = Double.parseDouble(prop.getProperty("percentCrossover")); 
     }
-    
+      
     //build first generation of trees
     public ArrayList<Tree> buildInitialGeneration() throws FileNotFoundException{
         
@@ -98,38 +88,25 @@ public class GPEnvironment{
             //reset the score
             fitnessScore = 0.0;
         }
-           for(int k= 0; k< arrayOfTrees.size();k++){
-                System.out.println("The fitness score for " + k + " is: " + arrayOfTrees.get(k).fitnessValue);
-               
-                for (int m = 0;m < arrayOfTrees.get(k).getNodes().size();m++){
-                    System.out.print(arrayOfTrees.get(k).getNodes().get(m).getNodeValue());
-                }
-                System.out.println();
-           }
-        
+            
             return arrayOfTrees;    
     }
     
     //select fittest trees
     public ArrayList<Tree> selection(ArrayList<Tree> arrayOfTrees) throws IOException{
            
+        //sort the array
         Collections.sort(arrayOfTrees); 
         
+        //variables for selection
         int numberOfNewPrograms = (int) (populationSize * percentRegeneration);
         int cutdownSize = (int) (arrayOfTrees.size() - populationSize);
         
-        //display array before removal
-        //for (int q = 0; q < arrayOfTrees.size();q++){
-        //    System.out.println("Selection: " + q + " has value: "  + arrayOfTrees.get(q).fitnessValue );
-            
-        //}
-               
-        //System.out.println("Number of new programs: " + numberOfNewPrograms);
-        
-        //remove the worst fit trees
-        //System.out.println("Removing the worst fit trees...");
+        //remove worst programs
         for(int j=0;j<numberOfNewPrograms;j++){
             arrayOfTrees.remove(arrayOfTrees.size()-1);
+            
+            //recalculate fitness value
             Double myFitnessValue = arrayOfTrees.get(j).fitnessValue;
             
             //remove trees if they are infinite or NaN
@@ -137,6 +114,7 @@ public class GPEnvironment{
                 arrayOfTrees.get(j).fitnessValue = Double.POSITIVE_INFINITY;
             }
         }
+        //cutdown population size further if we have 
         if(cutdownSize>0){
             for(int j=0;j<cutdownSize;j++){
                 arrayOfTrees.remove(arrayOfTrees.size()-1);
@@ -196,18 +174,12 @@ public class GPEnvironment{
                 newProgramArray.get(j).fitnessValue = Double.POSITIVE_INFINITY;
             }
         }
-        //for (int m=0;m<newProgramArray.size();m++){
-        //    System.out.println("New program array at " + m + " is: " + newProgramArray.get(m).fitnessValue);
-        //}
         
         arrayOfTrees.addAll(newProgramArray);
         
         //sort array of trees
         Collections.sort(arrayOfTrees);
         
-         //for (int q = 0; q < arrayOfTrees.size();q++){
-         //   System.out.println("Next generation location1: " + q + " has value: "  + arrayOfTrees.get(q).fitnessValue );
-        //}
         return arrayOfTrees;
     }
    
@@ -218,9 +190,17 @@ public class GPEnvironment{
         int totalNodes = (int) Math.pow(2,maxTreeHeight)-1;
         ArrayList<TreeNode> nodes = myTree.getNodes();
         Tree myTree1 = (Tree) myTree.clone();
-        ArrayList<TreeNode> nodes1 = myTree1.getNodes();
-        //TreeNode myRoot =null;     
-        int size = nodes1.size();
+        ArrayList<TreeNode> myClone = new ArrayList<TreeNode>();
+        
+        for(TreeNode p : nodes){
+            myClone.add((p.clone()));
+       }
+        myTree1.getNodes().clear();
+        for(int i=0;i<myClone.size();i++){
+            myTree1.getNodes().add(myClone.get(i));
+        }
+        
+        int size = nodes.size();
         
         if(size ==0){
             return myTree;
@@ -230,41 +210,39 @@ public class GPEnvironment{
         
         int random = randomGenerator.nextInt(size);
    
-        TreeNode randomNode = nodes1.get(random);
+        TreeNode randomNode = myClone.get(random);
         String type = randomNode.getNodeTypeValue();
-        //System.out.println("Before mutation for node: " + random + " is " + myTree1.getNodes());
-        //System.out.println("Before mutation score for node: "  + random + " is " + myTree1.fitnessValue);
-        myRoot = myTree1.fillTree(myTree1.getNodes(),0, totalNodes-1);
-        //printExpression(myRoot);
-        //System.out.println();
+       
+        myRoot = myTree1.fillTree(myClone,0, totalNodes-1);
+        myTree1.setRoot(myRoot);
+        myTree1.myRoot = myRoot;
         if(type.equals("OPERAND")) {
+            
             char myOperand = myTree1.generateRandomOperandTreeNode();
+            while(randomNode.data == myOperand){
+                myOperand = myTree1.generateRandomOperandTreeNode();
+            }
             myTree1.getNodes().get(random).setNodeValue(myOperand);
             myTree1.getNodes().get(random).data = myOperand;
             
-             //myTree.getNodes().set(random, myTree.getNodes().get(random));
         } 
         else if (type.equals("OPERATOR")) {
+            
             char myOperator = myTree1.generateRandomOperatorTreeNode();
+            while(randomNode.data == myOperator){ 
+                myOperator = myTree1.generateRandomOperatorTreeNode();
+            }
+            
             myTree1.getNodes().get(random).setNodeValue(myOperator);       
             myTree1.getNodes().get(random).data = myOperator;
-            //myTree.getNodes().set(random, myTree.getNodes().get(random));
         }
-        //System.out.println("get nodes before mutate: " + myTree1.getNodes());
+     
         //calculate myroot
         myRoot = myTree1.fillTree(myTree1.getNodes(),0, totalNodes-1);
-        //printExpression(myRoot);
-        //System.out.println();
-        for(int i=0;i<myTree.getNodes().size();i++){
-            myTree1.getNodes().get(i).data = myTree.getNodes().get(i).data;
-        }
-        
-       // myFitnessScore = myFitnessScore + Math.abs(td.getTrainingDataScore(k) - arrayOfTrees.get(0).evaluateTree(myRoot,  td.getIndex(k)));
-        //myRoot = arrayOfTrees.get(0).fillTree(arrayOfTrees.get(0).getNodes(),0, totalNodes-1);
+         
         //adding myRoot to existing tree
         myTree1.setRoot(myRoot);        
-        myTree1.fitnessValue = myTree.calculateScore(myTree,myRoot,maxTreeHeight);
-        //System.out.println("Mutate: The fitness score is: " + myTree1.fitnessValue);
+        myTree1.fitnessValue = myTree1.calculateScore(myTree1,myRoot);
         
         //calculate new score
         Double myFitnessValue = myTree1.fitnessValue;
@@ -272,11 +250,7 @@ public class GPEnvironment{
         if(myFitnessValue.isInfinite() || myFitnessValue.isNaN()){
             myTree1.fitnessValue = Double.POSITIVE_INFINITY;
         }
-        
-        //System.out.println("After mutation: " + myTree.getNodes());
-        //System.out.println("After mutation score: " + myTree.fitnessValue);
-        //System.out.println("get nodes after mutate: " + myTree1.getNodes());  
-        //printExpression(myRoot);
+     
         return myTree1;
     }
         
@@ -291,7 +265,6 @@ public class GPEnvironment{
         int numberToMutate = (int) (percentMutation * size);
         
         ArrayList<Tree> mutateArray = new ArrayList<Tree>(numberToMutate);
-        //ArrayList<Tree> copy = new ArrayList<Tree>(arrayOfTrees);
         
         
         for(int i=0;i<numberToMutate;i++){
@@ -300,139 +273,111 @@ public class GPEnvironment{
             
             int randomInt = rNumber.nextInt(size);
             
-            //while (randomInt == 0){
-            //    randomInt = rNumber.nextInt(size);
-            //}
-            //System.out.println("mutating: " + randomInt);
             Tree tree = arrayOfTrees.get(randomInt);
             Tree myTree1 = (Tree) tree.clone();
-            //Tree tree = copy.get(randomInt);
-            System.out.println("The fitness value 1 is: " + myTree1.fitnessValue);
-            //print out selected tree
-            //Tree newTree = mutate(tree);      
-            //arrayOfTrees.remove(randomInt);
-            //System.out.println("Removing tree number: " +randomInt);
-            double fitnessValue1 =  myTree1.fitnessValue;
-            double fitnessValue2 = Double.POSITIVE_INFINITY;
-            Tree myTree2 = new Tree (myRoot,3,100);
-            //while(fitnessValue2 >= fitnessValue1){
-                
-                //randomInt = rNumber.nextInt(size);
-                //tree = arrayOfTrees.get(randomInt);
-                //myTree1 = (Tree) tree.clone();
-                myTree2 = mutate(tree);
-                int totalNodes = (int) Math.pow(2,maxTreeHeight)-1;
-                myRoot = myTree2.fillTree(myTree2.getNodes(),0, totalNodes-1);
-                myTree2.myRoot = myRoot;          
-                myTree2.fitnessValue = myTree2.calculateScore(myTree2,myRoot,maxTreeHeight);
-                fitnessValue2 = myTree2.fitnessValue;
-                //System.out.println("The fitness value 1 is: " + fitnessValue1);
-                System.out.println("The fitness value 2 is: " + fitnessValue2);
-            //}
-            //}
+   
+            Tree myTree2 = new Tree(myRoot,3,100);
+    
+            myTree2 = mutate(myTree1);
+            
+            int totalNodes = (int) Math.pow(2,maxTreeHeight)-1;
+            
+            myRoot = myTree2.fillTree(myTree2.getNodes(),0, totalNodes-1);
+            
+            myTree2.myRoot = myRoot;          
+            
+            myTree2.fitnessValue = myTree2.calculateScore(myTree2,myRoot);
+                       
             //calculate new score
             Double myFitnessValue = myTree2.fitnessValue;
 
             if(myFitnessValue.isInfinite() || myFitnessValue.isNaN()){
                 myTree2.fitnessValue = Double.POSITIVE_INFINITY;
             }
-            arrayOfTrees.remove(randomInt);
-            mutateArray.add(myTree2);
             
+                if((randomInt != 0) && (randomInt !=1)){
+                    arrayOfTrees.remove(randomInt);
+                }
+               
+                mutateArray.add(myTree2);
             
         }
         
         return mutateArray;       
     }
-    public Tree crossover2(Tree tree1, Tree tree2) throws FileNotFoundException, CloneNotSupportedException {
-        
-        TreeNode myRoot = null;
-        int totalNodes = (int) Math.pow(2,maxTreeHeight)-1;
-        Tree newTree = new Tree(myRoot,maxTreeHeight,0.0); 
-        
-        Tree myTree1 = (Tree) tree1.clone();
-        Tree myTree2 = (Tree) tree2.clone();  
-          
-        //set crossover point       
-        int crossoverPoint = (int) (Math.random()*tree1.getNodes().size());
-        while(crossoverPoint ==0){
-            crossoverPoint = (int) (Math.random()*tree1.getNodes().size());
-        }
-        //System.out.println("The crosspoint is: " + crossoverPoint);
-            for (int i=0;i<myTree1.getNodes().size();i++){  
-                //newTree.getNodes().set(i, myRoot)
-               
-                 if (i < crossoverPoint){
-                    
-                    newTree.getNodes().add(myTree1.getNodes().get(i));                  
-                 }
-                else{
-                    newTree.getNodes().add(myTree2.getNodes().get(i));               
-                 }            
-            }
-            
-            myRoot = newTree.fillTree(newTree.getNodes(),0, totalNodes-1);
-        
-            //adding myRoot to existing tree
-            newTree.setRoot(myRoot);
-               
-            newTree.fitnessValue = newTree.calculateScore(newTree,myRoot,maxTreeHeight);
-          
-             //calculate new score
-            Double myFitnessValue = newTree.fitnessValue;
-            
-            if(myFitnessValue.isInfinite() || myFitnessValue.isNaN()){          
-                newTree.fitnessValue = Double.POSITIVE_INFINITY;
-            }
-        
-            return newTree;
-    }
-    
+      
     //crossover two trees
     public Tree crossover(Tree tree1, Tree tree2) throws FileNotFoundException, CloneNotSupportedException {
         
+        //initial variables
         TreeNode myRoot = null;
         int totalNodes = (int) Math.pow(2,maxTreeHeight)-1;
         Tree newTree = new Tree(myRoot,maxTreeHeight,0.0); 
         
+        //cloning trees
         Tree myTree1 = (Tree) tree1.clone();
         Tree myTree2 = (Tree) tree2.clone();  
-          
+           
+        ArrayList<TreeNode> myClone = new ArrayList<TreeNode>();
+        ArrayList<TreeNode> myClone2 = new ArrayList<TreeNode>();
         
-        //set crossover point       
-        int crossoverPoint = (int) (Math.random()*tree1.getNodes().size());
-        while(crossoverPoint ==0){
-            crossoverPoint = (int) (Math.random()*tree1.getNodes().size());
+        ArrayList<TreeNode> nodes = myTree1.getNodes();
+        ArrayList<TreeNode> nodes2 = myTree2.getNodes();
+        
+        for(TreeNode p : nodes){
+            myClone.add((p.clone()));
+       }
+        for(TreeNode p : nodes2){
+            myClone2.add((p.clone()));
+       }
+        myTree1.getNodes().clear();
+        myTree2.getNodes().clear();
+        for(int i=0;i<myClone.size();i++){
+            myTree1.getNodes().add(myClone.get(i));
         }
-        //System.out.println("The crosspoint is: " + crossoverPoint);
-            for (int i=0;i<myTree1.getNodes().size();i++){           
-                 if (i < crossoverPoint){
-                    
-                    newTree.getNodes().add(myTree1.getNodes().get(i));                  
-                 }
-                else{
-                    newTree.getNodes().add(myTree2.getNodes().get(i));               
-                 }            
-            }
-            //System.out.println("Tree 1 is: " + myTree1.getNodes());
-            //System.out.println("Tree 2 is: " + myTree2.getNodes());
-            //System.out.println("The New Tree is: " + newTree.getNodes());
+        for(int i=0;i<myClone2.size();i++){
+            myTree2.getNodes().add(myClone2.get(i));
+        }
+        //set crossover point       
+        int crossoverNode = (int) (Math.random()*myTree1.getNodes().size());
+                
+        //don't allow top value to be crossed over
+        while(crossoverNode ==0){
+            crossoverNode = (int) (Math.random()*myTree1.getNodes().size());
+        }
             
-            myRoot = newTree.fillTree(newTree.getNodes(),0, totalNodes-1);
-        
-            //adding myRoot to existing tree
-            newTree.setRoot(myRoot);
-               
-            newTree.fitnessValue = newTree.calculateScore(newTree,myRoot,maxTreeHeight);
+        //for loop for nodes
+        for (int i=0;i<myTree1.getNodes().size();i++){           
+            
+            
+            if (i < crossoverNode){                          
+                newTree.getNodes().add(myTree1.getNodes().get(i));                                
+            }           
+            else{
+                newTree.getNodes().add(myTree2.getNodes().get(i));                    
+            }                  
+        }
           
-             //calculate new score
-            Double myFitnessValue = newTree.fitnessValue;
-            
-            if(myFitnessValue.isInfinite() || myFitnessValue.isNaN()){          
-                newTree.fitnessValue = Double.POSITIVE_INFINITY;
-            }
+        //fill in new root for new tree
+        myRoot = newTree.fillTree(newTree.getNodes(),0, totalNodes-1);
+                    
+        //adding myRoot to existing tree           
+        newTree.setRoot(myRoot);
+                
+        //calculate new value of fitness tree
+        newTree.fitnessValue = newTree.calculateScore(newTree,myRoot);
+          
+             
+        //calculate new score            
+        Double myFitnessValue = newTree.fitnessValue;
+               
+        //check for infinity or NaN
+        if(!isValidNumber(myFitnessValue)){
+            newTree.fitnessValue = Double.POSITIVE_INFINITY; 
+        }
         
-            return newTree;
+        //return new tree
+        return newTree;
     }
     
     //crossover selected percentage of trees
@@ -446,31 +391,41 @@ public class GPEnvironment{
        
         for (int i=0;i<crossoverSize;i++) {
             int rNumber = (int) (Math.random()*newTrees.size());
-            int rNumber2 = (int) (Math.random()*newTrees.size());
-            
-            while(rNumber == rNumber2){
-                rNumber2 = (int) (Math.random()*newTrees.size());
-            }
-           
-            Tree crossoverTree = crossover(newTrees.get(rNumber),newTrees.get(rNumber2));
-            while((crossoverTree.fitnessValue >= newTrees.get(rNumber).fitnessValue) &&
-                    (crossoverTree.fitnessValue >=newTrees.get(rNumber2).fitnessValue)){
+            Tree crossoverTree = crossover(newTrees.get(rNumber),newTrees.get(i));
+            Tree crossoverTree2 = crossover(newTrees.get(i),newTrees.get(rNumber));
+          
+            while ((rNumber == i) || newTrees.get(rNumber).fitnessValue == newTrees.get(i).fitnessValue
+                    ||crossoverTree.fitnessValue == crossoverTree2.fitnessValue){
                 rNumber = (int) (Math.random()*newTrees.size());
-                rNumber2 = (int) (Math.random()*newTrees.size());
-                crossoverTree = crossover(newTrees.get(rNumber),newTrees.get(rNumber2));
+                crossoverTree = crossover(newTrees.get(rNumber),newTrees.get(i));
+                crossoverTree2 = crossover(newTrees.get(i),newTrees.get(rNumber));
             }
-            //else{
-                crossoverArray.add(crossoverTree);
             
-            //System.out.println("The crossover tree score is: " + crossoverTree.fitnessValue);
-            //System.out.println("The random1 tree score is: " + newTrees.get(rNumber).fitnessValue);
-            //System.out.println("The random2 tree score is: " + newTrees.get(rNumber2).fitnessValue);
-
+            if((crossoverTree.fitnessValue != crossoverTree2.fitnessValue)){
+                crossoverArray.add(crossoverTree);  
+                crossoverArray.add(crossoverTree2);
+            }
             
         }
         return crossoverArray;
 }
 
+    //print out expression result
+    public void printTree(TreeNode myRoot) {
+        
+        if (myRoot.isLeaf()) {
+            System.out.print(myRoot.data);
+
+        } 
+        else {
+            System.out.print("(");
+            printTree(myRoot.left);
+            System.out.print(" " + myRoot.data + " ");
+            printTree(myRoot.right);
+            System.out.print(")");
+        } 
+    }   
+    
     //get population size
     public int getPopulationSize(){
         return populationSize;
@@ -495,27 +450,16 @@ public class GPEnvironment{
     public double getPercentCrossover(){
         return percentCrossover;
     }
+    
+    //checks to see if result is valid number
+    public boolean isValidNumber(Double myValue){
+        if(myValue.isInfinite()||myValue.isNaN()){
+            return false;
+        }
+       else{
+            return true;
+        }
+   }
    
-    public void printExpression() {
-        TreeNode myRoot = null;
-        
-        // Call a recursive helper method to perform the actual printing.
-        printExpression(myRoot);
-        System.out.println();
-    }
 
-    public void printExpression(TreeNode root) {
-        
-        if (root.isLeaf()) {
-            System.out.print(root.data);
-
-        } 
-        else {
-            System.out.print("(");
-            printExpression(root.left);
-            System.out.print(" " + root.data + " ");
-            printExpression(root.right);
-            System.out.print(")");
-        } 
-    }   
 }

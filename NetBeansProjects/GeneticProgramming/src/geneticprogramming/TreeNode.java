@@ -22,14 +22,25 @@ public class TreeNode{
     boolean isNodeRoot = false;
     String value = null;
     TreeNode parent = null;
-    private int level = 0;
     private String pointer = null;
     public static String RIGHT = "RIGHT";
     public static String LEFT = "LEFT";
     
+    @Override
+    public TreeNode clone(){
+        TreeNode p = new TreeNode(null,null,key,data);
+        p.key =  this.key;
+        p.data = this.data;
+        p.left = this.left;
+        p.right = this.right;
+        p.nodeType = this.nodeType;
+        p.isNodeRoot = this.isNodeRoot;
+        //p.d = this.d.clone();
+        //...
+        return p;
+    }
     
     //constructor
-    //add height/fitness values
     public TreeNode(TreeNode parent,String newPointer,int key,char data){
         this.key = key;
         this.data = data;
@@ -40,14 +51,12 @@ public class TreeNode{
         //fill in parent node
         if (parent == null && newPointer == null) {
             this.isNodeRoot = true;
-            this.level = 0;
         } 
         //fill in newPointer left or right
         else if (newPointer.equals(TreeNode.LEFT) || newPointer.equals(TreeNode.RIGHT)) {
             this.pointer = newPointer;
             this.parent = parent;
-            this.isNodeRoot = false;
-            parent.setChild(this);
+            this.isNodeRoot = false;       
         } 
     }   
     
@@ -80,11 +89,6 @@ public class TreeNode{
     public String getNodeTypeValue(){
         return nodeType;
     }    
-    
-    //returns String for TreeNode output
-    public String toString(){
-        return "key " + key + " has data value of: " + data;
-    }
     
     //sets Tree from TreeNode
     public void setTree(Tree newTree) {
@@ -125,41 +129,15 @@ public class TreeNode{
     public TreeNode getParent() {
         return this.parent;
     }
-    
-    //sets level of TreeNode
-    public void setLevel(int myLevel) {
-        this.level = myLevel;
-    }
-    
-    //return level of TreeNode
-    public int getLevel() {
-        return this.level;
-    }
-    
-    //sets child of TreeNode
-    public void setChild(final TreeNode myNode){
-                        
-        if (myNode.getPointer().equals(TreeNode.LEFT)) {
-            setLeft(myNode);
-        } 
-        else if (myNode.getPointer().equals(TreeNode.RIGHT)) {
-                setRight(myNode);
-        } 
-    }
-    
-    //sets pointer of TreeNode
-    public void setPointer(final String myPointer){
-        if (myPointer.equals(TreeNode.LEFT) || myPointer.equals(TreeNode.RIGHT)) {
-                this.pointer = myPointer;
-        } 
-    }
-    
+           
     //gets pointer of TreeNode
     public String getPointer() {       
         return this.pointer;
         }
-     public boolean isLeaf() {
+    
+    //checks if node has left or right node
+    public boolean isLeaf() {
         return (left == null) && (right == null);
     }
-
+    
 }  

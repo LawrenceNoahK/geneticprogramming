@@ -7,7 +7,6 @@
 package geneticprogramming;
 
 import java.io.FileNotFoundException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -24,21 +23,14 @@ public class Tree implements Comparable<Tree>,Cloneable{
    TreeNode right;
    TreeNode rootNode = null;    
    TreeNode root;
-   String nodeLocation;
    TreeNode myRoot;
    private ArrayList<TreeNode> nodes = new ArrayList<TreeNode>();
    ArrayList<TreeNode> operators = new ArrayList<TreeNode>();
    ArrayList<TreeNode> operands = new ArrayList<TreeNode>();
    public TrainingData td = new TrainingData();
-   private TreeNode parent = null;
-   
-   @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-   
+
    //constructor
-   public Tree(TreeNode newRoot,int height, double fitnessValue){
+   public Tree(TreeNode newRoot,int height, double fitnessValue) {
         this.fitnessValue = fitnessValue;
         this.height = height;     
         root = newRoot;
@@ -162,7 +154,7 @@ public class Tree implements Comparable<Tree>,Cloneable{
      
    //returns evaluated TreeNode value
    public double evaluateTree(TreeNode rootNode, double valueOfX){
-       //System.out.println("the rootnode is: " + rootNode.getNodeValue());
+       
        switch (rootNode.getNodeValue()){
           
          case 'x':      
@@ -230,33 +222,22 @@ public class Tree implements Comparable<Tree>,Cloneable{
 
 }
 
-   //sets root of Tree
-   public void setRoot(TreeNode newRoot){
-            this.root = newRoot;
-    }
-   
    //returns fitness value of Tree
-   public double calculateScore(Tree myTree,TreeNode myRoot,int maxTreeHeight) throws FileNotFoundException{
+   public double calculateScore(Tree myTree,TreeNode myRoot) throws FileNotFoundException{
        
        
-      // int totalNodes = (int) Math.pow(2,maxTreeHeight)-1;
-       //int nodeArray[] = new int[(int)Math.pow(2,maxTreeHeight)-1];
        double fitnessScore = 0.0; 
-        
-       //for(int i=0;i<totalNodes;i++){
-       //     nodeArray[i] = i;
-       //}
-       
+         
        for(int k=0;k<td.getLength();k++){ 
             fitnessScore = fitnessScore + Math.abs(td.getTrainingDataScore(k) - evaluateTree(myRoot,  td.getIndex(k)));    
        }
        
        Double myFitnessScore = fitnessScore;
+       
        if(myFitnessScore.isInfinite() || myFitnessScore.isNaN()){
             fitnessScore = Double.POSITIVE_INFINITY;
        }
        
-       //System.out.println("The final tree fitness score is: " + fitnessScore);
        myTree.fitnessValue = fitnessScore;
        
        return fitnessScore;
@@ -291,25 +272,29 @@ public class Tree implements Comparable<Tree>,Cloneable{
                 return this.operands;
     }
    
+   //sets root of Tree
+   public void setRoot(TreeNode newRoot){
+            this.root = newRoot;
+    }
+   
    //returns TreeNode root
    public TreeNode getRoot() {
         return this.root;
     }
+   
+   public void setNodes(ArrayList<TreeNode> myNodes) {
+                this.nodes = myNodes;
+        }
    
    //returns ArrayList of TreeNodes
    public ArrayList<TreeNode> getNodes() {
         return this.nodes;
     }
    
-   public String traverse (TreeNode root){ // Each child of a tree is a root of its subtree.
-    String myString ="";
-    if (root.left != null){
-        traverse (root.left);
+   //clones a tree
+   public Tree clone(){
+        Tree myTree = new Tree(myRoot,height,fitnessValue);
+        myTree.nodes = (ArrayList<TreeNode>) this.nodes.clone();
+        return myTree;
     }
-    myString = myString + root.data;
-    if (root.right != null){
-        traverse (root.right);
-    }
-    return myString;
-}
 }
