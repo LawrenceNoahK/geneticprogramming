@@ -25,21 +25,7 @@ public class TreeNode{
     private String pointer = null;
     public static String RIGHT = "RIGHT";
     public static String LEFT = "LEFT";
-    
-    @Override
-    public TreeNode clone(){
-        TreeNode p = new TreeNode(null,null,key,data);
-        p.key =  this.key;
-        p.data = this.data;
-        p.left = this.left;
-        p.right = this.right;
-        p.nodeType = this.nodeType;
-        p.isNodeRoot = this.isNodeRoot;
-        //p.d = this.d.clone();
-        //...
-        return p;
-    }
-    
+     
     //constructor
     public TreeNode(TreeNode parent,String newPointer,int key,char data){
         this.key = key;
@@ -60,6 +46,19 @@ public class TreeNode{
         } 
     }   
     
+    //clone treenode
+     @Override
+    public TreeNode clone(){
+        TreeNode myTreeNode = new TreeNode(null,null,key,data);
+        myTreeNode.key =  this.key;
+        myTreeNode.data = this.data;
+        myTreeNode.left = this.left;
+        myTreeNode.right = this.right;
+        myTreeNode.nodeType = this.nodeType;
+        myTreeNode.isNodeRoot = this.isNodeRoot;
+        return myTreeNode;
+    }
+   
     //set node value
     public void setNodeValue(char value){
         data = value;
@@ -93,11 +92,6 @@ public class TreeNode{
     //sets Tree from TreeNode
     public void setTree(Tree newTree) {
          this.tree = newTree;
-    }
-    
-    //gets Tree from TreeNode
-    public Tree getTree() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     //sets left TreeNode

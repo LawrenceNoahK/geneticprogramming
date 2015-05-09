@@ -44,9 +44,6 @@ public class GeneticProgramming {
         //create new GP Environment
         GPEnvironment myEnvironment = new GPEnvironment();
         
-        //load settings
-        //myEnvironment.loadSettings();
-       
         //variables obtained from GP environment
         populationSize = myEnvironment.getPopulationSize();
         maxTreeHeight =  myEnvironment.getMaxTreeHeight();
